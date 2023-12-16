@@ -6,7 +6,7 @@ sudo add-apt-repository ppa:deadsnakes/ppa -y
 sudo apt install python3.10 -y
 sudo apt install python3.10-venv -y
 
-git clone https://github.com/nottolstybai/DemidovCourse.git
+git clone https://github.com/nottolstybai/CloudTech.git
 
 sudo apt install mongodb-org-community
 sudo systemctl start mongod

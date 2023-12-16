@@ -11,7 +11,7 @@ from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from db.model import Base, User
+from db.model import User
 
 app = FastAPI()
 auth = HTTPBasic()
