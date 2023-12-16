@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Database</title>
+    <style>
+        /* Define some basic styles for the elements */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            background-color: #333;
+            margin: 0;
+            padding: 10px;
+        }
+
+        form {
+            width: 400px;
+            margin: 20px auto;
+            border: 1px solid #ccc;
+            padding: 20px;
+            box-shadow: 2px 2px 5px #999;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        input {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            margin-bottom: 20px;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            border: none;
+            background-color: #333;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #444;
+        }
+
+        p {
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        a {
+            color: #333;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .message {
+            color: green;
+            font-weight: bold;
+        }
+
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Create Database</h1>
+    <!-- Define a form element to get the user input -->
+    <form id="form">
+        <!-- Define a label and an input element for the username -->
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required>
+        <!-- Define a label and an input element for the password -->
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+        <!-- Define a button element to submit the form -->
+        <button type="submit" id="submit">Create Database</button>
+        <!-- Define a paragraph element to show the message or error -->
+        <p id="message"></p>
+        <!-- Define a paragraph element to show the link to go back to the index page -->
+        <p id="link"><a href="/" id="back">Go back to the index page</a></p>
+    </form>
+    <script>
+        // Get the form element by its id
+        const form = document.getElementById("form");
+        // Get the input elements by their ids
+        const username = document.getElementById("username");
+        const password = document.getElementById("password");
+        // Get the button element by its id
+        const submit = document.getElementById("submit");
+        // Get the paragraph element by its id
+        const message = document.getElementById("message");
+
+        // Define a function to handle the form submission
+        async function handleSubmit(event) {
+            // Prevent the default behavior of the form
+            event.preventDefault();
+            // Get the username and password values from the input elements
+            const user = username.value;
+            const pass = password.value;
+            // Check if the username and password are not empty
+            if (user && pass) {
+                // Create a new URLSearchParams object to store the credentials
+                const params = new URLSearchParams();
+                // Append the username and password to the params
+                params.append("username", user);
+                params.append("password", pass);
+                try {
+                    // Send a POST request to the /create_database endpoint with the credentials as the headers
+                    const response = await fetch("/create_database", {
+                        method: "POST",
+                        headers: {
+                            "Authorization": "Basic " + btoa(user + ":" + pass)
+                        }
+                    });
+                    // Parse the response as JSON
+                    const data = await response.json();
+                    // Check if the response status is 200 (OK)
+                    if (response.status === 200) {
+                        // Show the success message and the database credentials from the data
+                        message.textContent = data.message;
+                        message.textContent += "\nDatabase: " + data.database;
+                        message.textContent += "\nUser: " + data.user;
+                        message.textContent += "\nPassword: " + data.password;
+                        message.className = "message";
+                    } else {
+                        // If the response status is not 200, show the error message from the data
+                        message.textContent = data.detail;
+                        message.className = "error";
+                    }
+                } catch (error) {
+                    // If there is an error, show the error message
+                    message.textContent = error.message;
+                    message.className = "error";
+                }
+            } else {
+                // If the username or password is empty, show an error message
+                message.textContent = "Please enter a username and a password";
+                message.className = "error";
+            }
+        }
+
+        // Add an event listener to the form element to handle the submit event
+        form.addEventListener("submit", handleSubmit);
+    </script>
+</body>
+</html>

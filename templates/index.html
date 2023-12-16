@@ -1,0 +1,96 @@
+<html>
+<head>
+    <title>MongoDB as Service</title>
+    <script>
+        function sendPostRequest(url, data, callback) {
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", url, true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    callback(response);
+                }
+            };
+            xhr.send(JSON.stringify(data));
+        }
+
+        function sendGetRequestWithToken(url, token, callback) {
+            var data = {
+                token: token
+            };
+
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", url, true);
+            xhr.setRequestHeader("token", token);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    callback(response);
+                }
+            };
+            xhr.send(JSON.stringify(data));
+        }
+
+        function registerUser() {
+            var username = document.getElementById("register-username").value;
+            var password = document.getElementById("register-password").value;
+            var data = {
+                username: username,
+                password: password
+            };
+            sendPostRequest("/register", data, function (response) {
+                alert(response.message);
+            });
+        }
+
+        function authorizeUser() {
+            var username = document.getElementById("authorize-username").value;
+            var password = document.getElementById("authorize-password").value;
+            var data = {
+                username: username,
+                password: password
+            };
+            sendPostRequest("/authorize", data, function (response) {
+                alert(response.message);
+                localStorage.setItem("token", response.token);
+            });
+        }
+
+        function createDatabase() {
+            var token = localStorage.getItem("token");
+            if (token) {
+                sendGetRequestWithToken("/create_database", token, function (response) {
+                    alert(response.message);
+                    alert("Database: " + response.database + "\nUser: " + response.user + "\nPassword: " + response.password);
+                });
+            } else {
+                window.location.href = "/authorize";
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Простой фронт</h1>
+    <h2>Регистрация</h2>
+    <form>
+        <label for="register-username">Имя пользователя:</label>
+        <input type="text" id="register-username" name="register-username">
+        <label for="register-password">Пароль:</label>
+        <input type="password" id="register-password" name="register-password">
+        <button type="button" onclick="registerUser()">Зарегистрироваться</button>
+    </form>
+    <h2>Авторизация</h2>
+    <form>
+        <label for="authorize-username">Имя пользователя:</label>
+        <input type="text" id="authorize-username" name="authorize-username">
+        <label for="authorize-password">Пароль:</label>
+        <input type="password" id="authorize-password" name="authorize-password">
+        <button type="button" onclick="authorizeUser()">Авторизоваться</button>
+    </form>
+    <h2>Создание базы данных</h2>
+    <form>
+        <button type="button" onclick="createDatabase()">Создать базу данных</button>
+    </form>
+</body>
+</html>
