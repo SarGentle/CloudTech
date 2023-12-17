@@ -76,8 +76,6 @@ def create_database(user):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Database creation failed: {e}",
         )
-    finally:
-        client.close()
 
     return dbname, dbname, dbpass
 
