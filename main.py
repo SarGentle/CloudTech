@@ -1,12 +1,13 @@
+import secrets
 from datetime import datetime, timedelta
 from secrets import token_urlsafe
-from typing import Type
+from typing import Type, Annotated
 
 from bson import ObjectId
 from pymongo import MongoClient
 
 import jwt
-from fastapi import FastAPI, Depends, HTTPException, status, Request, Header
+from fastapi import FastAPI, Depends, HTTPException, status, Request, Header, security
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -84,7 +85,7 @@ def create_database(user):
 def register(credentials: HTTPBasicCredentials = Depends(auth)):
     if users_collection.find_one({"username": credentials.username}):
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
+            status_code=status.HTTP_418_IM_A_TEAPOT,
             detail="Username already exists",
         )
 
