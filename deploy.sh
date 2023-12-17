@@ -15,4 +15,4 @@ sudo apt-get install -y mongodb-org
 sudo systemctl start mongod
 sudo systemctl status mongod
 
-bash -c "cd CloudTech && python3.10 -m venv venv && source venv/bin/activate && pip install -r requirements.txt && uvicorn main:app --host 0.0.0.0 --port 8080 --reload"
+bash -c "cd CloudTech && python3.10 -m venv venv && source venv/bin/activate && pip install -r requirements.txt && uvicorn main:app --host 0.0.0.0 --port 8080 --reload&"
