@@ -1,6 +1,54 @@
 <html>
 <head>
     <title>MongoDB as Service</title>
+        <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        h2 {
+            color: #555;
+            text-align: center;
+        }
+        form {
+            max-width: 300px;
+            margin: 20px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            color: #333;
+        }
+        input {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin: 5px 0 10px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            background: #4caf50;
+            color: #fff;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+    </style>
     <script>
         function sendPostRequest(url, data, callback) {
             var xhr = new XMLHttpRequest();
@@ -71,7 +119,7 @@
     </script>
 </head>
 <body>
-    <h1>Простой фронт</h1>
+    <h1>Главное меню</h1>
     <h2>Регистрация</h2>
     <form>
         <label for="register-username">Имя пользователя:</label>
