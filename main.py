@@ -31,7 +31,7 @@ def create_jwt_token(user_id: str):
     return token
 
 
-def verify_jwt_token(token: str):
+def validate_jwt_token(token: str):
     try:
         payload = jwt.decode(token, "secret", algorithms=["HS256"])
         user_id = payload["sub"]
@@ -50,7 +50,7 @@ def verify_jwt_token(token: str):
         )
 
 
-def verify_user(credentials: HTTPBasicCredentials = Depends(http)):
+def validate_user(credentials: HTTPBasicCredentials = Depends(http)):
     user = users_collection.find_one({"username": credentials.username, "password": credentials.password})
     if not user:
         raise HTTPException(
@@ -91,7 +91,7 @@ def register(credentials: HTTPBasicCredentials = Depends(http)):
 
 
 @app.post("/authorize")
-def authorize(user: Type[User] = Depends(verify_user)):
+def authorize(user: Type[User] = Depends(validate_user)):
     token = create_jwt_token(str(user["_id"]))
     return {"message": "User authorized successfully", "user_id": str(user["_id"]), "username": user["username"],
             "token": token}
@@ -99,7 +99,7 @@ def authorize(user: Type[User] = Depends(verify_user)):
 
 @app.get("/create_database")
 def create_database_for_user(token: str = Header(None)):
-    user_id = verify_jwt_token(token)
+    user_id = validate_jwt_token(token)
     user = users_collection.find_one({"_id": ObjectId(user_id)})
     if not user:
         raise HTTPException(
