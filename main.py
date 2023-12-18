@@ -15,7 +15,7 @@ app = FastAPI()
 http = HTTPBasic()
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
-templates = Jinja2Templates(directory="templates")\
+templates = Jinja2Templates(directory="templates")
 
 client = MongoClient("mongodb://localhost:27017/")
 db = client["CloudTech"]
