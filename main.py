@@ -1,34 +1,31 @@
 import secrets
+import jwt
 from datetime import datetime, timedelta
 from secrets import token_urlsafe
 from typing import Type, Annotated
-
 from bson import ObjectId
 from pymongo import MongoClient
-
-import jwt
 from fastapi import FastAPI, Depends, HTTPException, status, Request, Header, security
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-
 from db.model import User
 
 app = FastAPI()
-auth = HTTPBasic()
+http = HTTPBasic()
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
+templates = Jinja2Templates(directory="templates")\
 
 client = MongoClient("mongodb://localhost:27017/")
 db = client["CloudTech"]
 users_collection = db["users"]
 
-app.mount("/static", StaticFiles(directory="static"), name="static")
-templates = Jinja2Templates(directory="templates")
-
 
 def create_jwt_token(user_id: str):
     payload = {
         "sub": user_id,
-        "exp": datetime.utcnow() + timedelta(days=1)
+        "exp": datetime.utcnow() + timedelta(days=7)
     }
     token = jwt.encode(payload, "secret", algorithm="HS256")
     return token
@@ -53,7 +50,7 @@ def verify_jwt_token(token: str):
         )
 
 
-def verify_user(credentials: HTTPBasicCredentials = Depends(auth)):
+def verify_user(credentials: HTTPBasicCredentials = Depends(http)):
     user = users_collection.find_one({"username": credentials.username, "password": credentials.password})
     if not user:
         raise HTTPException(
@@ -65,24 +62,23 @@ def verify_user(credentials: HTTPBasicCredentials = Depends(auth)):
 
 
 def create_database(user):
-    dbname = f"db_{user['username']}_{token_urlsafe(8)}"
-    dbpass = token_urlsafe(16)
-
+    db_name = f"mongodb_{user['username']}_{token_urlsafe(8)}"
+    db_password = token_urlsafe(16)
     try:
-        new_db = client[dbname]
+        new_db = client[db_name]
         new_db["dummy_collection"].insert_one({"dummy": "data"})
-        new_db.command("createUser", dbname, pwd=dbpass, roles=["readWrite"])
+        new_db.command("createUser", db_name, pwd=db_password, roles=["readWrite"])
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Database creation failed: {e}",
         )
 
-    return dbname, dbname, dbpass
+    return db_name, user['username'], db_password
 
 
 @app.post("/register")
-def register(credentials: HTTPBasicCredentials = Depends(auth)):
+def register(credentials: HTTPBasicCredentials = Depends(http)):
     if users_collection.find_one({"username": credentials.username}):
         raise HTTPException(
             status_code=status.HTTP_418_IM_A_TEAPOT,
@@ -91,7 +87,6 @@ def register(credentials: HTTPBasicCredentials = Depends(auth)):
 
     user = {"username": credentials.username, "password": credentials.password}
     users_collection.insert_one(user)
-
     return {"message": "User registered successfully"}
 
 
@@ -111,8 +106,8 @@ def create_database_for_user(token: str = Header(None)):
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found",
         )
-    dbname, dbuser, dbpass = create_database(user)
-    return {"message": "Database created successfully", "database": dbname, "user": dbuser, "password": dbpass}
+    db_name, db_user, db_password = create_database(user)
+    return {"message": "Database created successfully", "database": db_name, "user": db_user, "password": db_password}
 
 
 @app.get("/")
