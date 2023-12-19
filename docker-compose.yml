@@ -1,13 +1,32 @@
-version: '3.4'
+version: '3.8'
+
+networks:
+  dbaas_net:
+    driver: bridge
 
 services:
 
+  app:
+    build:
+      context: ./
+      dockerfile: app.Dockerfile
+    environment:
+      - DB_HOST=db
+    container_name: server
+    command: bash -c "sleep 30s  && uvicorn main:app --host 0.0.0.0 --port 8080"
+    depends_on:
+      - db
+    ports:
+      - '8080:8080'
+    networks:
+      - dbaas_net
+
   db:
-    image: postgres:14.1-alpine
-    container_name: dbaas
+    image: mongo:latest
+    container_name: mongo
     restart: always
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=adminpassword
     ports:
-      - '5432:5432'
+      - '27017:27017'
