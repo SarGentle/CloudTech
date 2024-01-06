@@ -17,7 +17,7 @@ http = HTTPBasic()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
-client = MongoClient("mongodb://database:27017/")
+client = MongoClient("mongodb://localhost:27017/")
 db = client["CloudTech"]
 users_collection = db["users"]
 
